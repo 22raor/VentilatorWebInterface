@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <title>Data Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+</head>
+<body>
+<div class="header">
+    <h1>Ventilator Data</h1>
+    <p>Columbus Robotics</p>
+</div>
+
+<div class="container">
+    <canvas id="pressure"></canvas>
+    <canvas id="cycleCount"></canvas>
+    <canvas id="peakMotorEffort"></canvas>
+</div>
+<style>
+    .header {
+        padding: 60px;
+        text-align: center;
+        background: #1abc9c;
+        color: white;
+        font-size: 20px;
+    }
+
+</style>
+
+
+<script>
+    function getRandomColor() {
+        let r = Math.random() * 255;
+        let g = Math.random() * 255;
+        let b = Math.random() * 255;
+        let a = 0.6;
+        let z = "rgba(" + Math.round(r) + "," + Math.round(g) + "," + Math.round(b) + "," + "0.6)";
+        return z;
+    }
+
+    //Global
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontColor = '#777';
+
+
+    let mysql = require('mysql');
+
+    let con = mysql.createConnection({
+        host: "localhost",
+        user: "yourusername",
+        password: "yourpassword",
+        database: "mydb"
+    });
+
+    con.connect(function (err) {
+        if (err) throw err;
+        con.query("SELECT name, address FROM customers", function (err, result, fields) {
+            if (err) throw err;
+            console.log(result);
+        });
+    });
+
+
+    //Data
+    let cycleNumber = [1, 2, 3, 4, 5];
+    let cycleTime = [2, 4, 6, 8, 9];
+    let pressureMin = [25, 35, 45, 10, 12];
+    let pressureMax = [43, 56, 67, 18, 32];
+    let peakMotorEffort1 = [2, 5, 6, 3, 2];
+    let peakMotorEffort2 = [7, 8, 12, 13, 6];
+    let peakMotorEffort3 = [4, 9, 1, 20, 9];
+    //let peakMotorTime = [4,6,3,5,6];
+
+
+    let pressure = document.getElementById('pressure').getContext('2d');
+    let pressureChart = new Chart(pressure, {
+        type: 'line', //bar, horizxontalbar, pie line doughnut radar polarArea
+        data: {
+            labels: cycleNumber,
+            datasets: [{
+                label: 'Minimum Pressure',
+                data: pressureMin,
+                backgroundColor: getRandomColor(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: '3',
+                hoverBorderColor: '#800'
+            }, {
+                label: 'Maximum Pressure',
+                data: pressureMax,
+                backgroundColor: getRandomColor(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: '3',
+                hoverBorderColor: '#800'
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Pressure Transducer',
+                fontSize: 25
+            },
+            legend: {
+                position: 'right'
+
+            },
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Pressure (cm H20)'
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Cycle'
+                    }
+                }]
+            }
+
+        }
+    });
+
+    let cycleCount = document.getElementById('cycleCount').getContext('2d');
+    let cycleCountChart = new Chart(cycleCount, {
+        type: 'line', //bar, horizxontalbar, pie line doughnut radar polarArea
+        data: {
+            labels: cycleTime,
+            datasets: [{
+                label: 'Cycle',
+                data: cycleNumber,
+                backgroundColor: getRandomColor(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: '3',
+                hoverBorderColor: '#800'
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Cycles v. Time',
+                fontSize: 25
+            },
+            legend: {
+                position: 'right'
+
+            },
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Cycle Number'
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time (hours)'
+                    }
+                }]
+            }
+
+        }
+    });
+
+    let peakMotorEffortElement = document.getElementById('peakMotorEffort').getContext('2d');
+    let peakMotorEffortChart = new Chart(peakMotorEffortElement, {
+        type: 'bar', //bar, horizxontalbar, pie line doughnut radar polarArea
+        data: {
+            labels: cycleNumber,
+            datasets: [{
+                label: 'Motor 1',
+                data: peakMotorEffort1,
+                backgroundColor: getRandomColor(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: '3',
+                hoverBorderColor: '#800'
+            }, {
+                label: 'Motor 2',
+                data: peakMotorEffort2,
+                backgroundColor: getRandomColor(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: '3',
+                hoverBorderColor: '#800'
+            }, {
+                label: 'Motor 3',
+                data: peakMotorEffort3,
+                backgroundColor: getRandomColor(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: '3',
+                hoverBorderColor: '#800'
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Peak Motor Effort',
+                fontSize: 25
+            },
+            legend: {
+                position: 'right'
+
+            },
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Motor Output %'
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Cycles'
+                    }
+                }]
+            }
+
+        }
+    });
+
+
+</script>
+
+
+</body>
+</html>
